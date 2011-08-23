@@ -1,0 +1,21 @@
+{% extends "storklapp/base.html" %}
+{% load url from future %}
+{% block title %}StorKl - {{ user.username }}'s projects{% endblock %}
+
+{% block content %}
+<ul>
+{% for project in projects %}
+<li>
+{% if user = project.owner %}
+<a href="/projectdelete/{{ project }}">[delete]</a>
+{% endif %}
+<a href="/project/{{ project }}">{{ project }}({{ project.owner }})</a>
+</li>
+{% endfor %}
+</ul>
+
+<form action="/projects" method="post">
+{{ form.as_p }}
+<input type="submit" />
+</form>
+{% endblock %}

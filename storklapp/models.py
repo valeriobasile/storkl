@@ -7,6 +7,7 @@ class Project(models.Model):
 	owner = models.ForeignKey(User)
 	def __unicode__(self):
 		return self.name
+
 	
 class Task(models.Model):
 	name = models.CharField(max_length=100)
