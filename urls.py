@@ -15,8 +15,10 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^projects', 'storklapp.views.projects'),
-    url(r'^project/(?P<project>\w+)$', 'storklapp.views.project'),
+    url(r'^dashboard', 'storklapp.views.dashboard'),
+    url(r'^project/(?P<project_id>\d+)$', 'storklapp.views.project'),
+    url(r'^edit_project/(?P<project_id>\d+)$', 'storklapp.views.edit_project'),
+    url(r'^delete_project/(?P<project_id>\d+)$', 'storklapp.views.delete_project'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'storklapp/login.html'}),
     url(r'^logout/$', 'storklapp.views.view_logout'),
 )

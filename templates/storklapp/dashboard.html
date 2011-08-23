@@ -1,0 +1,28 @@
+{% extends "storklapp/base.html" %}
+{% load url from future %}
+{% block title %}StorKl - {{ user.username }}'s projects{% endblock %}
+
+{% block content %}
+<ul>
+{% for task in tasks %}
+<li>
+<a href="/project/{{ task.project.id }}">{{ task.project }}</a> /
+<a href="/task/{{ task }}">{{ task }}</a>
+</li>
+{% endfor %}
+</ul>
+
+My projects
+<ul>
+{% for project in projects %}
+<li>
+<a href="/project/{{ project.id }}">{{ project }}</a>
+</li>
+{% endfor %}
+</ul>
+
+<form action="/dashboard" method="post">
+{{ form.as_p }}
+<input type="submit" />
+</form>
+{% endblock %}

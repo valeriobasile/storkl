@@ -1,6 +1,17 @@
 {% extends "storklapp/base.html" %}
-{% block title %}StorKl - {{ project }}{% endblock %}
+{% block title %}StorKl - {{ project.name }} {% endblock %}
 
 {% block content %}
-{{ project }}
+Project:
+{{ project.name }}
+<br />
+{{ project.description }}
+<br />
+{% if owned %}
+<a href="/edit_project/{{ project.id }}">edit this project</a>
+{% else %}
+Owner: {{ project.owner }}
+{% endif %}
+<br />
+
 {% endblock %}
