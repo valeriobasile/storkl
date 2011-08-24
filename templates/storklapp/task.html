@@ -1,0 +1,24 @@
+{% extends "storklapp/base.html" %}
+{% block title %}StorKl - {{ task.project.name }}/{{ task.name }}{% endblock %}
+
+{% block content %}
+<a href="/project/{{ task.project.id }}">{{ task.project.name }}</a>/{{ task.name }}
+<br />
+{{ task.description }}
+<br />
+{{ task.users.all|join:", " }}
+
+<form action="/task/{{ task.id }}" method="post">
+{{ form.as_p }}
+<input type="submit" />
+</form>
+<script>
+	$(function() {
+		$( "#id_deadline" ).datepicker();
+	});
+</script>
+
+
+
+
+{% endblock %}

@@ -12,17 +12,18 @@ class Project(models.Model):
 	
 class Task(models.Model):
 	name = models.CharField(max_length=100)
-	description = models.TextField()
+	description = models.TextField(blank=True)
 	project = models.ForeignKey(Project)
-	deadline = models.DateTimeField(blank=True)
+	deadline = models.DateField(default=None, null=True, blank=True)
 	users = models.ManyToManyField(User, blank=True)	
 	dependency = models.ManyToManyField("self",blank=True)
+	completed = models.BooleanField(default=False)
 	def __unicode__(self):
 		return "{0}".format(self.name)
 	
 class Message(models.Model):
 	text = models.TextField()
-	timestamp = models.DateTimeField(auto_now=True)
+	timestamp = models.DateTimeField(auto_now_add=True)
 	author = models.ForeignKey(User)
 	project = models.ForeignKey(Project)
 	task = models.ForeignKey(Task, blank=True)

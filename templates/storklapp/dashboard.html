@@ -7,7 +7,7 @@
 {% for task in tasks %}
 <li>
 <a href="/project/{{ task.project.id }}">{{ task.project }}</a> /
-<a href="/task/{{ task }}">{{ task }}</a>
+<a href="/task/{{ task.id }}">{{ task }}</a>
 </li>
 {% endfor %}
 </ul>
@@ -16,6 +16,9 @@ My projects
 <ul>
 {% for project in projects %}
 <li>
+{% if project.owner = user %}
+(owner)
+{% endif %}
 <a href="/project/{{ project.id }}">{{ project }}</a>
 </li>
 {% endfor %}

@@ -1,0 +1,24 @@
+{% extends "storklapp/base.html" %}
+{% load url from future %}
+{% block title %}StorKl - edit {{ project.name }} {% endblock %}
+
+{% block content %}
+{{ project.name }}
+<br />
+
+<form action="/edit_project/{{ project.id }}" method="post">
+{{ form.as_p }}
+<input type="submit" />
+</form>
+<script type="text/javascript">
+<!--
+function confirm_delete(){
+	var confirmation = confirm("Do you really want to delete project \"{{ project.name }}\" permanently?");
+	if (confirmation) {
+		window.location = "/delete_project/{{ project.id }}";
+	}
+}
+//-->
+</script>
+<a href="#" onclick="confirm_delete();">delete this project</a>
+{% endblock %}

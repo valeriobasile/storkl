@@ -2,7 +2,6 @@
 {% block title %}StorKl - {{ project.name }} {% endblock %}
 
 {% block content %}
-Project:
 {{ project.name }}
 <br />
 {{ project.description }}
@@ -13,5 +12,18 @@ Project:
 Owner: {{ project.owner }}
 {% endif %}
 <br />
-
+<ul>
+{% for task in tasks %}
+<li>
+<a href="/task/{{ task.id }}">{{ task.name }}</a>
+<br />
+{{ task.users.all|join:", " }}
+</li>
+{% endfor %}
+</ul>
+{% if owned %}
+<form action="/project/{{ project.id }}" method="post">
+{{ form.as_p }}
+<input type="submit" />
+{% endif %}
 {% endblock %}
