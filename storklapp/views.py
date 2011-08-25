@@ -125,27 +125,33 @@ def task(request, task_id):
     edit_authorized = request.user in task.users.all()
     owner = request.user == task.project.owner
 
-    # processing "Task" form
+    # processing forms
     if edit_authorized or owner:
         if request.method == "POST":
             if owner:
                 form = TaskFormOwner(request.POST)
                 if form.is_valid():
-                    task.completed = form.cleaned_data["completed"]
-                    task.description = form.cleaned_data["description"]
-                    task.deadline = form.cleaned_data["deadline"]
-                    
-                    for user in form.cleaned_data["users"].split("\n"):
-                        try:
-                            new_user = User.objects.get(username=user)
-                        except:
-                            new_user = None
-                            
-                        if new_user and not (new_user in task.users.all()):
-                            task.users.add(new_user)
-                    
-                    task.save()
-                    return HttpResponseRedirect('/task/%d' % task.id)
+                    if form.cleaned_data["form"] == "task":
+                        task.completed = form.cleaned_data["completed"]
+                        task.description = form.cleaned_data["description"]
+                        task.deadline = form.cleaned_data["deadline"]
+                        
+                        for user in form.cleaned_data["users"].split("\n"):
+                            try:
+                                new_user = User.objects.get(username=user)
+                            except:
+                                new_user = None
+                                
+                            if new_user and not (new_user in task.users.all()):
+                                task.users.add(new_user)
+                        
+                        task.save()
+                        return HttpResponseRedirect('/task/%d' % task.id)
+                    else:
+                        for user_id in request["user"]:
+                            old_user = Users.objects.get(pk=user_id)
+                            task.users.remove(old_user)
+                        return HttpResponseRedirect('/task/%d' % task.id)
             else:
                 form = TaskForm(request.POST)
                 if form.is_valid():
