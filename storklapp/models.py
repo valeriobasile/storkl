@@ -16,7 +16,7 @@ class Task(models.Model):
 	project = models.ForeignKey(Project)
 	deadline = models.DateField(default=None, null=True, blank=True)
 	users = models.ManyToManyField(User, blank=True)	
-	dependency = models.ManyToManyField("self",blank=True)
+	dependencies = models.ManyToManyField("self", symmetrical=False, blank=True)
 	completed = models.BooleanField(default=False)
 	def __unicode__(self):
 		return "{0}".format(self.name)

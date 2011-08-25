@@ -10,25 +10,12 @@
 
 <form action="/task/{{ task.id }}" method="post">
 {{ form.as_p }}
-<input type="submit" />
-<input type="hidden" name="form" value="task" />
+<input type="submit" value="save" />
 </form>
 <script>
 	$(function() {
 		$( "#id_deadline" ).datepicker();
 	});
 </script>
-Users:
-<form action="/task/{{ task.id }}" method="post">
-<ul>
-{% for user in task.users.all %}
-<li>
-<input type="checkbox" name="user" value="{{ user.id }}" /> {{ user.username }}
-</li>
-{% endfor %}
-</ul>
-<input type="hidden" name="form" value="remove" />
-<input type="submit" value="remove selected users"/>
-</form>
 {% endblock %}
 

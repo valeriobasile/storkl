@@ -21,7 +21,7 @@ class NewProjectForm(forms.Form):
 
 class NewTaskForm(forms.Form):
     name = forms.CharField(max_length=100, label="New Task")
-
+            
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
@@ -33,12 +33,20 @@ class TaskForm(ModelForm):
         fields = ['completed']
 
 class TaskFormOwner(ModelForm):
-    users = forms.CharField(label="Add People", widget=Textarea(attrs={'cols': 40, 'rows': 10}))
+    users_add = forms.CharField(label="Add People", widget=Textarea(attrs={'cols': 40, 'rows': 10}), required=False)
+    users_remove = forms.MultipleChoiceField(label="Remove users", widget=forms.CheckboxSelectMultiple, required=False)
     
+    def __init__(self, *args, **kwargs):
+        super(TaskFormOwner, self).__init__(*args, **kwargs)
+        user_choices = [(user.id, user.username) for user in self.instance.users.all()]
+        self.fields["users_remove"].choices=user_choices
+        dep_choices = [(task.id, task.name) for task in Task.objects.filter(project=self.instance.project).exclude(pk=self.instance.id)]
+        self.fields["dependencies"].choices = dep_choices
+        
     class Meta:
         model = Task
-        fields = ['description', 'deadline', 'completed']
-
+        fields = ['description', 'deadline', 'completed', 'users_add', 'users_remove', 'dependencies']
+        widgets = {'dependencies': forms.CheckboxSelectMultiple}
         
 @login_required()
 def dashboard(request):
@@ -120,38 +128,46 @@ def delete_project(request, project_id):
 
 @login_required()
 def task(request, task_id):
+    
     task = get_object_or_404(Task, pk=task_id)
 
     edit_authorized = request.user in task.users.all()
     owner = request.user == task.project.owner
 
-    # processing forms
+    # processing form for edit
     if edit_authorized or owner:
         if request.method == "POST":
             if owner:
-                form = TaskFormOwner(request.POST)
+                form = TaskFormOwner(request.POST, instance=task)
                 if form.is_valid():
-                    if form.cleaned_data["form"] == "task":
-                        task.completed = form.cleaned_data["completed"]
-                        task.description = form.cleaned_data["description"]
-                        task.deadline = form.cleaned_data["deadline"]
+                    task.completed = form.cleaned_data["completed"]
+                    task.description = form.cleaned_data["description"]
+                    task.deadline = form.cleaned_data["deadline"]
+                    
+                    # adding users to task
+                    for user in form.cleaned_data["users_add"].split("\n"):
+                        try:
+                            new_user = User.objects.get(username=user)
+                        except:
+                            new_user = None
+                        if new_user and not (new_user in task.users.all()):
+                            task.users.add(new_user)
+                    
+                    # removing users from task
+                    for user_id in form.cleaned_data["users_remove"]:
+                        old_user = User.objects.get(pk=user_id)
+                        task.users.remove(old_user)
                         
-                        for user in form.cleaned_data["users"].split("\n"):
-                            try:
-                                new_user = User.objects.get(username=user)
-                            except:
-                                new_user = None
-                                
-                            if new_user and not (new_user in task.users.all()):
-                                task.users.add(new_user)
-                        
-                        task.save()
-                        return HttpResponseRedirect('/task/%d' % task.id)
-                    else:
-                        for user_id in request["user"]:
-                            old_user = Users.objects.get(pk=user_id)
-                            task.users.remove(old_user)
-                        return HttpResponseRedirect('/task/%d' % task.id)
+                    # updating dependencies
+                    # debug
+                    #import pdb; pdb.set_trace()        
+                    task.dependencies=[]
+                    for dependency in form.cleaned_data["dependencies"]:
+                        if dependency and not (dependency in task.dependencies.all()):
+                            task.dependencies.add(dependency)
+
+                    task.save()
+                    return HttpResponseRedirect('/task/%d' % task.id)
             else:
                 form = TaskForm(request.POST)
                 if form.is_valid():
@@ -165,7 +181,7 @@ def task(request, task_id):
                 form = TaskForm(instance=task)
     else:
         form = None
-        
+                
     return render_to_response("storklapp/task.html", {'task': task, 'form': form}, context_instance=RequestContext(request))
     
 def view_logout(request):
