@@ -23,7 +23,7 @@ class NewProjectForm(forms.Form):
     name = forms.CharField(max_length=100, label="New Project", validators=[validate_new_project_name])
 
 class NewTaskForm(forms.Form):
-    name = forms.CharField(max_length=100, label="New Task")
+    name = forms.CharField(max_length=100, label="New Task", required=False)
             
 class ProjectForm(ModelForm):
     class Meta:
@@ -36,7 +36,7 @@ class TaskForm(ModelForm):
         fields = ['completed']
 
 class TaskFormOwner(ModelForm):
-    users_add = forms.CharField(label="Add People", widget=Textarea(attrs={'cols': 40, 'rows': 10}), required=False)
+    users_add = forms.CharField(label="Add People", widget=Textarea(attrs={'cols': 20, 'rows': 5}), required=False)
     users_remove = forms.MultipleChoiceField(label="Remove users", widget=forms.CheckboxSelectMultiple, required=False)
     
     def __init__(self, *args, **kwargs):
@@ -45,10 +45,11 @@ class TaskFormOwner(ModelForm):
         self.fields["users_remove"].choices=user_choices
         dep_choices = [(task.id, task.name) for task in Task.objects.filter(project=self.instance.project).exclude(pk=self.instance.id)]
         self.fields["dependencies"].choices = dep_choices
+        self.fields["dependencies"].help_text=""
         
     class Meta:
         model = Task
-        fields = ['description', 'deadline', 'completed', 'users_add', 'users_remove', 'dependencies']
+        fields = ['completed', 'description', 'deadline', 'users_add', 'users_remove', 'dependencies']
         widgets = {'dependencies': forms.CheckboxSelectMultiple}
         
 @login_required()
@@ -135,8 +136,8 @@ def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     
     if request.user == project.owner:
-        # delete project
-        default_storage.delete("graphs/projects/project_%d.png" % project_id)
+        # delete project        
+        default_storage.delete("graphs/projects/project_%d.png" % project.id)
         project.delete()
         
         
@@ -161,7 +162,9 @@ def task(request, task_id):
                     task.deadline = form.cleaned_data["deadline"]
                     
                     # adding users to task
-                    for user in form.cleaned_data["users_add"].split("\n"):
+                    # debug
+                    #import pdb; pdb.set_trace()        
+                    for user in form.cleaned_data["users_add"].split():
                         try:
                             new_user = User.objects.get(username=user)
                         except:
@@ -175,15 +178,13 @@ def task(request, task_id):
                         task.users.remove(old_user)
                         
                     # updating dependencies
-                    # debug
-                    #import pdb; pdb.set_trace()        
                     task.dependencies=[]
                     for dependency in form.cleaned_data["dependencies"]:
                         if dependency and not (dependency in task.dependencies.all()):
                             task.dependencies.add(dependency)
 
                     task.save()
-                    return HttpResponseRedirect('/task/%d' % task.id)
+                    return HttpResponseRedirect('/project/%d' % task.project.id)
             else:
                 form = TaskForm(request.POST)
                 if form.is_valid():
@@ -198,8 +199,35 @@ def task(request, task_id):
     else:
         form = None
                 
-    return render_to_response("storklapp/task.html", {'task': task, 'form': form}, context_instance=RequestContext(request))
+    # task graph
+    task_graph = pgv.AGraph(strict=False,directed=True)
+    task_graph.node_attr['shape']='oval'
+    task_graph.add_node(task.name)
+    for other_task in Task.objects.all():
+        if  task in other_task.dependencies.all():
+            task_graph.add_node(other_task.name)
+            task_graph.add_edge(task.name, other_task.name)
+    for dependency in task.dependencies.all():
+        task_graph.add_node(dependency.name)
+        task_graph.add_edge(dependency.name, task.name)
+
+    task_graph.layout(prog='dot')
+    task_graph.draw('%s/task_%d_%d.png' % (default_storage.path("graphs/tasks"), task.project.id, task.id))
+
+    return render_to_response("storklapp/task.html", {'task': task, 'form': form, 'owner': owner}, context_instance=RequestContext(request))
+
+@login_required()
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    project_id = task.project.id
     
+    if request.user == task.project.owner:    
+        # delete task 
+        default_storage.delete("graphs/task/project_%d_%d.png" % (task.project.id, task.id))
+        task.delete()
+        
+    return HttpResponseRedirect('/project/%d' % project_id)    
+
 def view_logout(request):
     logout(request)
     return HttpResponseRedirect('/accounts/login/?next=/dashboard')

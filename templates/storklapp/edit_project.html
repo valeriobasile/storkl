@@ -3,7 +3,7 @@
 {% block title %}StorKl - edit {{ project.name }} {% endblock %}
 
 {% block content %}
-{{ project.name }}
+<a href="/project/{{ project.id }}">{{ project.name }}</a>
 <br />
 
 <form action="/edit_project/{{ project.id }}" method="post">

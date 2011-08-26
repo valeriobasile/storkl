@@ -2,12 +2,14 @@
 {% block title %}StorKl - {{ task.project.name }}/{{ task.name }}{% endblock %}
 
 {% block content %}
+<h1>
 <a href="/project/{{ task.project.id }}">{{ task.project.name }}</a>/{{ task.name }}
+</h1>
 <br />
 {{ task.description }}
+<span class="userlist">{{ task.users.all|join:", " }}</span>
 <br />
-{{ task.users.all|join:", " }}
-
+<img src="{{ MEDIA_URL }}/graphs/tasks/task_{{task.project.id}}_{{task.id}}.png" />
 <form action="/task/{{ task.id }}" method="post">
 {{ form.as_p }}
 <input type="submit" value="save" />
@@ -17,5 +19,18 @@
 		$( "#id_deadline" ).datepicker();
 	});
 </script>
+{% if owner %}
+<script type="text/javascript">
+<!--
+function confirm_delete(){
+	var confirmation = confirm("Do you really want to delete task \"{{ task.name }}\" permanently?");
+	if (confirmation) {
+		window.location = "/delete_task/{{ task.id }}";
+	}
+}
+//-->
+</script>
+<a href="#" onclick="confirm_delete();">delete this task</a>
+{% endif %}
 {% endblock %}
 

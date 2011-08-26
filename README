@@ -2,3 +2,20 @@ Storkl
 
 Simple Time ORganizing Kit ("L" is for fashion).
 
+Task color code:
+
+- no deadline: grey;
+- yes deadline but user not assigned to task: blue;
+- deadline farther than CLOSE: green;
+- deadline between CLOSE and URGENT; yellow;
+- deadline closer than URGENT: red;
+- past deadline: purple;
+
+ie. CLOSE = 3 days, UGRENT = 1 day
+
+TODO
+- message board in tasks;
+- coloured tasks in dashboard and graphs;
+- graphs should not be written on disk. Instead they should be passed from view 
+to template for visualization;
+

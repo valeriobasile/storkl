@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^edit_project/(?P<project_id>\d+)$', 'storklapp.views.edit_project'),
     url(r'^delete_project/(?P<project_id>\d+)$', 'storklapp.views.delete_project'),
     url(r'^task/(?P<task_id>\d+)$', 'storklapp.views.task'),
+    url(r'^delete_task/(?P<task_id>\d+)$', 'storklapp.views.delete_task'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'storklapp/login.html'}),
     url(r'^logout/$', 'storklapp.views.view_logout'),
 )
