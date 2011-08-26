@@ -8,6 +8,9 @@ from django.contrib.auth import logout
 from django.template import RequestContext
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, Textarea
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import pygraphviz as pgv
 
 def validate_new_project_name(value):
     # check if homonym project already exists
@@ -95,6 +98,17 @@ def project(request, project_id):
     # task list
     tasks = Task.objects.filter(project=project)
 
+    # project graph
+    project_graph = pgv.AGraph(strict=False,directed=True)
+    project_graph.node_attr['shape']='oval'
+    for task in tasks:
+        project_graph.add_node(task.name)
+        for dependency in task.dependencies.all():
+            project_graph.add_edge(dependency.name, task.name)
+
+    project_graph.layout(prog='dot')
+    project_graph.draw('%s/project_%d.png' % (default_storage.path("graphs/projects"), project.id))
+
     return render_to_response("storklapp/project.html", {'project': project, 'tasks': tasks, 'owned': owned, 'form': form}, context_instance=RequestContext(request))
     
 @login_required()
@@ -122,7 +136,9 @@ def delete_project(request, project_id):
     
     if request.user == project.owner:
         # delete project
+        default_storage.delete("graphs/projects/project_%d.png" % project_id)
         project.delete()
+        
         
     return HttpResponseRedirect('/dashboard')    
 
