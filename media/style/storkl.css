@@ -1,0 +1,47 @@
+body {
+    font-size: small;
+    margin: 0px;
+}
+
+h1 {
+    font-family: arial;
+    font-size: large;
+}
+
+ul{
+    list-style: none;
+    list-style-position: inside;  
+    padding-left: 0px;
+}
+
+li {
+    margin: 0em;
+}
+
+a {
+    text-decoration: none;
+}
+
+form label{
+    display: block;
+}
+
+#toolbar {
+    background: #bbb;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0.5em;
+}
+
+#content {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0.5em;    
+}
+
+.userlist, .description {
+    font-style: italic;
+    color: #666;
+}
+
+
