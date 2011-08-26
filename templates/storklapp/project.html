@@ -6,7 +6,8 @@
 <br />
 {{ project.description }}
 <br />
-{% if owned %}
+<img src="{{ MEDIA_URL }}/graphs/projects/project_{{project.id}}.png" />
+<br />{% if owned %}
 <a href="/edit_project/{{ project.id }}">edit this project</a>
 {% else %}
 Owner: {{ project.owner }}
