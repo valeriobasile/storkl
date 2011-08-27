@@ -1,57 +1,19 @@
 from storklapp.models import *
+from forms import *
+from utils import *
+
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.template import RequestContext
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, Textarea
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.conf import settings
 import pygraphviz as pgv
 
-def validate_new_project_name(value):
-    # check if homonym project already exists
-    # this should allow for different users having homonym projects,
-    # now it doesn't.
-    if Project.objects.filter(name=value).exists():
-        raise ValidationError(u'A project with the same name already exists.')
-        
-class NewProjectForm(forms.Form):
-    name = forms.CharField(max_length=100, label="New Project", validators=[validate_new_project_name])
-
-class NewTaskForm(forms.Form):
-    name = forms.CharField(max_length=100, label="New Task", required=False)
-            
-class ProjectForm(ModelForm):
-    class Meta:
-        model = Project
-        fields = ['description']
-        
-class TaskForm(ModelForm):
-    class Meta:
-        model = Task
-        fields = ['completed']
-
-class TaskFormOwner(ModelForm):
-    users_add = forms.CharField(label="Add People", widget=Textarea(attrs={'cols': 20, 'rows': 5}), required=False)
-    users_remove = forms.MultipleChoiceField(label="Remove users", widget=forms.CheckboxSelectMultiple, required=False)
-    
-    def __init__(self, *args, **kwargs):
-        super(TaskFormOwner, self).__init__(*args, **kwargs)
-        user_choices = [(user.id, user.username) for user in self.instance.users.all()]
-        self.fields["users_remove"].choices=user_choices
-        dep_choices = [(task.id, task.name) for task in Task.objects.filter(project=self.instance.project).exclude(pk=self.instance.id)]
-        self.fields["dependencies"].choices = dep_choices
-        self.fields["dependencies"].help_text=""
-        
-    class Meta:
-        model = Task
-        fields = ['completed', 'description', 'deadline', 'users_add', 'users_remove', 'dependencies']
-        widgets = {'dependencies': forms.CheckboxSelectMultiple}
-        
 @login_required()
 def dashboard(request):
     # processing "New Project" form
@@ -70,6 +32,9 @@ def dashboard(request):
     for task in Task.objects.all():
         if request.user in task.users.all():
             projects.append(task.project)
+
+            # computing colors
+            task.color = task_color(task, request.user)
             tasks.append(task)
                     
     projects += Project.objects.filter(owner=request.user.id)
@@ -101,16 +66,26 @@ def project(request, project_id):
 
     # project graph
     project_graph = pgv.AGraph(strict=False,directed=True)
-    project_graph.node_attr['shape']='oval'
+    project_graph.graph_attr['rankdir']='LR'
+    project_graph.node_attr['shape']='rect'
+    project_graph.node_attr['style']='filled'
     for task in tasks:
         project_graph.add_node(task.name)
+        project_graph.get_node(task.name).attr["URL"]="/task/%d" % task.id        
+        project_graph.get_node(task.name).attr["fillcolor"]=task_color(task, request.user)
         for dependency in task.dependencies.all():
             project_graph.add_edge(dependency.name, task.name)
 
-    project_graph.layout(prog='dot')
-    project_graph.draw('%s/project_%d.png' % (default_storage.path("graphs/projects"), project.id))
+    project_graph.draw('%s/project_%d.svg' % (default_storage.path("graphs/projects"), project.id), prog='dot', format='svg')
+    # bug: cannot write an empty map file
+    if len(tasks)>0:
+        project_graph.draw('%s/maps/project_%d.html' % (settings.TEMPLATE_DIRS[0], project.id), prog='dot', format='cmap')
+    else:
+        open('%s/maps/project_%d.html' % (settings.TEMPLATE_DIRS[0], project.id), "w")
+        
+    mapfile = '%s/maps/project_%d.html' % (settings.TEMPLATE_DIRS[0], project.id)
 
-    return render_to_response("storklapp/project.html", {'project': project, 'tasks': tasks, 'owned': owned, 'form': form}, context_instance=RequestContext(request))
+    return render_to_response("storklapp/project.html", {'project': project, 'tasks': tasks, 'owned': owned, 'form': form, 'mapfile': mapfile}, context_instance=RequestContext(request))
     
 @login_required()
 def edit_project(request, project_id):
@@ -136,8 +111,8 @@ def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     
     if request.user == project.owner:
-        # delete project        
-        default_storage.delete("graphs/projects/project_%d.png" % project.id)
+        # delete project
+        default_storage.delete("graphs/projects/project_%d.svg" % project.id)
         project.delete()
         
         
@@ -201,20 +176,30 @@ def task(request, task_id):
                 
     # task graph
     task_graph = pgv.AGraph(strict=False,directed=True)
-    task_graph.node_attr['shape']='oval'
+    task_graph.graph_attr['rankdir']='LR'
+    task_graph.node_attr['shape']='rect'
+    task_graph.node_attr['style']='filled'
     task_graph.add_node(task.name)
+    task_graph.get_node(task.name).attr["URL"]="/task/%d" % task.id        
+    task_graph.get_node(task.name).attr["fillcolor"]=task_color(task, request.user)
     for other_task in Task.objects.all():
         if  task in other_task.dependencies.all():
             task_graph.add_node(other_task.name)
+            task_graph.get_node(other_task.name).attr["URL"]="/task/%d" % other_task.id
+            task_graph.get_node(other_task.name).attr["fillcolor"]=task_color(other_task, request.user)
             task_graph.add_edge(task.name, other_task.name)
     for dependency in task.dependencies.all():
         task_graph.add_node(dependency.name)
+        task_graph.get_node(dependency.name).attr["URL"]="/task/%d" % dependency.id
+        task_graph.get_node(dependency.name).attr["fillcolor"]=task_color(dependency, request.user)
         task_graph.add_edge(dependency.name, task.name)
 
-    task_graph.layout(prog='dot')
-    task_graph.draw('%s/task_%d_%d.png' % (default_storage.path("graphs/tasks"), task.project.id, task.id))
-
-    return render_to_response("storklapp/task.html", {'task': task, 'form': form, 'owner': owner}, context_instance=RequestContext(request))
+    task_graph.draw('%s/task_%d_%d.svg' % (default_storage.path("graphs/tasks"), task.project.id, task.id), prog='dot', format='svg')
+    task_graph.draw('%s/maps/task_%d_%d.html' % (settings.TEMPLATE_DIRS[0], task.project.id, task.id), prog='dot', format='cmap')
+    
+    mapfile = '%s/maps/task_%d_%d.html' % (settings.TEMPLATE_DIRS[0], task.project.id, task.id)
+    
+    return render_to_response("storklapp/task.html", {'task': task, 'form': form, 'owner': owner, 'mapfile': mapfile}, context_instance=RequestContext(request))
 
 @login_required()
 def delete_task(request, task_id):
@@ -223,7 +208,7 @@ def delete_task(request, task_id):
     
     if request.user == task.project.owner:    
         # delete task 
-        default_storage.delete("graphs/task/project_%d_%d.png" % (task.project.id, task.id))
+        default_storage.delete("graphs/tasks/task_%d_%d.svg" % (task.project.id, task.id))
         task.delete()
         
     return HttpResponseRedirect('/project/%d' % project_id)    

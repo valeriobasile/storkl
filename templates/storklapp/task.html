@@ -7,9 +7,13 @@
 </h1>
 <br />
 {{ task.description }}
+<br />
 <span class="userlist">{{ task.users.all|join:", " }}</span>
 <br />
-<img src="{{ MEDIA_URL }}/graphs/tasks/task_{{task.project.id}}_{{task.id}}.png" />
+<img src="{{ MEDIA_URL }}/graphs/tasks/task_{{task.project.id}}_{{task.id}}.svg" usemap="#task_graph" />
+<map name="task_graph">
+{% include mapfile %}
+</map>
 <form action="/task/{{ task.id }}" method="post">
 {{ form.as_p }}
 <input type="submit" value="save" />
