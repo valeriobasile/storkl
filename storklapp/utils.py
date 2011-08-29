@@ -6,14 +6,17 @@ URGENT = 1
 
 def task_color(task, user):
     if not user in task.users.all():
-        # blue
-        color = "#9090f0"
+        # grey
+        color = "#a0a0a0"
     else:
-        if task.deadline:
+        if task.completed:
+            # green
+            color = "#90f090"
+        elif task.deadline:
             delta = task.deadline - datetime.date.today() 
             if delta.days > CLOSE:
-                # green
-                color = "#90f090"
+                # blue
+                color = "#9090f0"
             elif delta.days > URGENT:
                 # yellow
                 color = "#f0f090"
@@ -25,7 +28,7 @@ def task_color(task, user):
                 color = "#f090f0"
         else:
             # grey
-            return "#a0a0a0"
+            color = "#a0a0a0"
     
     return color
   
