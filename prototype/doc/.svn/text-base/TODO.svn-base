@@ -1,0 +1,9 @@
+- date picker for fields of type date
+- button to switch between view/edit mode
+- trust request ignored if user already trusted
+- trust request email
+- revise task assignment form: a long list of checkboxes is not adequate
+- convert other links to widgets (e.g. projects)
+- make project provate/public views
+- make task provate/public views
+

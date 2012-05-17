@@ -1,0 +1,34 @@
+{% extends "storklapp/base.html" %}
+{% load url from future %}
+{% block title %}StorKl - {{ user.username }}'s dashboard{% endblock %}
+
+{% block content %}
+<h1>{{ user.username }}'s dashboard</h1>
+<ul>
+{% for task in tasks %}
+<li>
+<span style="background-color: {{ task.color }}">
+<a href="/project/{{ task.project.id }}">{{ task.project }}</a> /
+<a href="/task/{{ task.id }}">{{ task }}</a>
+</span>
+</li>
+{% endfor %}
+</ul>
+
+My projects
+<ul>
+{% for project in projects %}
+<li>
+{% if project.owner = user %}
+(owner)
+{% endif %}
+<a href="/project/{{ project.id }}">{{ project }}</a>
+</li>
+{% endfor %}
+</ul>
+
+<form action="/dashboard" method="post">
+{{ form.as_p }}
+<input type="submit" />
+</form>
+{% endblock %}

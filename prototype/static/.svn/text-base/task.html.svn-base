@@ -1,0 +1,184 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org" />
+
+  <title>StorkL - task: hyperlamp/Paint lamp</title>
+  <link rel="stylesheet" type="text/css" href="storkl.css" />
+</head>
+
+<body>
+  <div class="title">
+    <h1><a class="dashboard" href="index.php">StorkL</a>/<a class="project" href=
+    "index.php?view=project&amp;project=1">hyperlamp</a>/<a class="task" href=
+    "index.php?view=task&amp;task=5">Paint lamp</a></h1>
+  </div>
+
+  <div class="content">
+    <p>Put some color on that thing</p>
+  </div>
+
+  <div class="content">
+    <ul>
+      <li><a class="user" href="index.php?view=user&amp;user=2">sara</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h2>Edit task</h2>
+
+    <form method="post" action="index.php?view=task&amp;task=5">
+      <ul>
+        <li><input type="hidden" name="form" value="task" /></li>
+
+        <li><input type="hidden" name="id" value="5" /></li>
+
+        <li><input type="text" name="name" id="name" value="Paint lamp" /></li>
+
+        <li>
+        <textarea name="description" id="description">
+Put some color on that thing
+</textarea></li>
+
+        <li><input type="submit" value="update" /></li>
+      </ul>
+    </form>
+  </div>
+
+  <div class="content">
+    <h2>Users assigned (edit)</h2>
+
+    <form method="post" action="index.php?view=task&amp;task=5">
+      <ul>
+        <li><input name="assignment[]" id="assignment_2" type="checkbox" value="2"
+        checked="checked" /><label for="assignment_2">sara</label></li>
+
+        <li><input name="assignment[]" id="assignment_3" type="checkbox" value=
+        "3" /><label for="assignment_3">biascica</label></li>
+
+        <li><input name="assignment[]" id="assignment_1" type="checkbox" value=
+        "1" /><label for="assignment_1">valerio</label></li>
+
+        <li><input type="hidden" name="form" value="assignment" /></li>
+
+        <li><input type="hidden" name="id" value="5" /></li>
+
+        <li><input type="submit" value="update" /></li>
+      </ul>
+    </form>
+  </div>
+
+  <div class="content">
+    <h2>Dependecies</h2>
+
+    <ul>
+      <li><a class="task" href="index.php?view=task&amp;task=6">buy colors</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h2>Dependecies (edit)</h2>
+
+    <form method="post" action="index.php?view=task&amp;task=5">
+      <ul>
+        <li><input name="dependencies[]" id="dependencies_1" type="checkbox" value=
+        "1" /><label for="dependencies_1">buy materials</label></li>
+
+        <li><input name="dependencies[]" id="dependencies_2" type="checkbox" value=
+        "2" /><label for="dependencies_2">assemble</label></li>
+
+        <li><input name="dependencies[]" id="dependencies_5" type="checkbox" value=
+        "5" /><label for="dependencies_5">Paint lamp</label></li>
+
+        <li><input name="dependencies[]" id="dependencies_6" type="checkbox" value="6"
+        checked="checked" /><label for="dependencies_6">buy colors</label></li>
+
+        <li><input name="dependencies[]" id="dependencies_7" type="checkbox" value=
+        "7" /><label for="dependencies_7">hang the lamp</label></li>
+
+        <li><input type="hidden" name="form" value="dependencies" /></li>
+
+        <li><input type="hidden" name="id" value="5" /></li>
+
+        <li><input type="submit" value="update" /></li>
+      </ul>
+    </form>
+  </div>
+
+  <div class="content">
+    <h2>Tasks that depends on this</h2>
+
+    <ul>
+      <li><a class="task" href="index.php?view=task&amp;task=7">hang the lamp</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h2>Tasks that depends on this (edit)</h2>
+
+    <form method="post" action="index.php?view=task&amp;task=5">
+      <ul>
+        <li><input name="dependents[]" id="dependents_1" type="checkbox" value=
+        "1" /><label for="dependents_1">buy materials</label></li>
+
+        <li><input name="dependents[]" id="dependents_2" type="checkbox" value=
+        "2" /><label for="dependents_2">assemble</label></li>
+
+        <li><input name="dependents[]" id="dependents_5" type="checkbox" value=
+        "5" /><label for="dependents_5">Paint lamp</label></li>
+
+        <li><input name="dependents[]" id="dependents_6" type="checkbox" value=
+        "6" /><label for="dependents_6">buy colors</label></li>
+
+        <li><input name="dependents[]" id="dependents_7" type="checkbox" value="7"
+        checked="checked" /><label for="dependents_7">hang the lamp</label></li>
+
+        <li><input type="hidden" name="form" value="dependents" /></li>
+
+        <li><input type="hidden" name="id" value="5" /></li>
+
+        <li><input type="submit" value="update" /></li>
+      </ul>
+    </form>
+  </div>
+
+  <div class="content">
+    <h2>Messages</h2>
+  </div>
+
+  <div class="content">
+    <h2>New message</h2>
+
+    <form method="post" action="index.php?view=task&amp;task=5">
+      <ul>
+        <li><input type="hidden" name="form" value="new_message" /></li>
+
+        <li><input type="hidden" name="task" value="5" /></li>
+
+        <li><input type="hidden" name="author" value="1" /></li>
+
+        <li>
+        <textarea name="text" id="text">
+</textarea></li>
+
+        <li><input type="submit" value="send" /></li>
+      </ul>
+    </form>
+  </div>
+
+  <div class="content">
+    <h2>Delete task</h2>
+
+    <form method="post" action="index.php?view=project&amp;project=5">
+      <ul>
+        <li><input type="hidden" name="form" value="delete_task" /></li>
+
+        <li><input type="hidden" name="id" value="5" /></li>
+
+        <li><input type="submit" value="delete this task" /></li>
+      </ul>
+    </form>
+  </div>
+</body>
+</html>
+
