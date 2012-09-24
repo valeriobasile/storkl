@@ -13,16 +13,17 @@ from model import *
 from database import *
 
 urls = (
-    '/auth',        'auth',
-    '/register',    'register',
-    '/activate',    'activate',
-    '/',            'dashboard',
-    '/dashboard',   'dashboard',
-    '/projects',    'projects',
-    '/involvement', 'involvement',
-    '/p/(.*)',        'project',
-    '/p/(.*)/(.*)',   'task',
-    '/trust',       'trust',
+    '/auth',            'auth',
+    '/register',        'register',
+    '/activate',        'activate',
+    '/',                'dashboard',
+    '/dashboard',       'dashboard',
+    '/projects',        'projects',
+    '/involvement',     'involvement',
+    '/p/(.*)',          'project',
+    '/p/(.*)/(.*)',     'task',
+    '/trust',           'trust',
+    '/projects/new',    'new_project',
 )
 
 def activation_email(recipient, activation):
@@ -34,10 +35,10 @@ Subject: {2}
     recipient, config["activation_subject"], 
     config["activation_body"].format(activation))
     
-    server = smtplib.SMTP(config["smtp_server"])
+    #server = smtplib.SMTP(config["smtp_server"])
     #server.sendmail(config["activation_sender"], [recipient], email)
     print(email)
-    server.quit()
+    #server.quit()
 
 # User registration
 #
@@ -54,11 +55,12 @@ class register:
             errors.append("username already in use")
         
         if len(errors) == 0:
-            activation = base64.b64encode(os.urandom(16))
+            activation = base64.b64encode(os.urandom(16))[:-2]
             response = {
                 "success":True,
                 "response":{}
             }
+
             # create User object
             user = User(
                 username = i.username, 
@@ -124,14 +126,13 @@ class auth:
             errors.append("username not found")
         else:
             user = user_query.one()
-            print bcrypt.hashpw(i.password, user.password),user.password
             if bcrypt.hashpw(i.password, user.password) != user.password:
                 errors.append("incorrect password")
             elif not user.active:
                 errors.append("user not active")
                 
         if len(errors) == 0:
-            session_token = base64.b64encode(os.urandom(16))
+            session_token = base64.b64encode(os.urandom(16))[:-2]
             timestamp = time.time()
             response = {
                 "success":True,
@@ -140,19 +141,50 @@ class auth:
                     "timestamp":timestamp,
                 }
             }
-            user_session = UserSession(
-                username = i.username, 
-                session_token = session_token,
-                timestamp = timestamp,
-            )
-            session.add(user_session)
+            user.session_token = session_token
+            user.session_timestamp = timestamp
             session.commit()
         else:
             response = {
                 "success":False,
                 "errors":errors
             }
-            
+        
+        web.header('Content-Type', 'application/json')
+        return json.dumps(response)
+        
+# POST: project name, project description, session_token
+# return: -
+class new_project:
+    def POST(self):
+        i = web.input()
+        
+        errors = []
+        user_query = session.query(User).filter(User.session_token==i.session_token)
+        if user_query.count() == 0:
+            errors.append("user not authorized")
+        else:
+            user = user_query.one()
+                
+        if len(errors) == 0:
+            response = {
+                "success":True,
+                "response":{}
+            }
+            # create Project
+            project = Project(
+                owner = user.id,
+                name = i.name, 
+                description = i.description,
+            )
+            session.add(user)
+            session.commit()
+        else:
+            response = {
+                "success":False,
+                "errors":errors
+            }
+        
         web.header('Content-Type', 'application/json')
         return json.dumps(response)
         

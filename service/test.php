@@ -1,6 +1,8 @@
 <?php
 # script to test the webservice
 
+session_start();
+
 # config
 $BASEURL = "http://127.0.0.1:8080/";
 header('Content-Type', 'application/json');
@@ -41,6 +43,18 @@ switch ($action){
             "password"=>$_POST["password"],
         );
         $response = json_decode(api_call($url, $args));
+        if ($response->success){
+            $_SESSION["session_token"] = $response->response->session;
+        }
+        break;
+    case "new_project":
+        $url = $BASEURL."projects/new";
+        $args = array(
+            "name"=>$_POST["name"],
+            "description"=>$_POST["description"],
+            "session_token"=>$_SESSION["session_token"],
+        );
+        $response = json_decode(api_call($url, $args));
         break;
     default:
         $response = null;
@@ -58,16 +72,18 @@ switch ($action){
 <body>
 
 <?
-if ($response->success==1){
-    echo("<div style='background-color:#efe;'><pre>");
-    print_r($response->response); 
-    echo("</pre></div>");
-}
-else {
-    echo("<div style='background-color:#fee; whitespace:pre;'><pre>");
-    print_r($response->errors); 
-    echo("</pre></div>");
-}
+#if (!is_null($response)){
+    if ($response->success==1){
+        echo("<div style='background-color:#efe;'><pre>");
+        print_r($response->response); 
+        echo("</pre></div>");
+    }
+    else {
+        echo("<div style='background-color:#fee; whitespace:pre;'><pre>");
+        print_r($response->errors); 
+        echo("</pre></div>");
+    }
+#}
 ?>
 <!--registration form -->
 <h1>registration</h1>
@@ -99,6 +115,16 @@ username<br/>
 <input name="username" type="text" /><br/>
 password<br/>
 <input name="password" type="password" /><br/>
+<input type="submit" />
+</form>
+
+<!--new project form -->
+<h1>new project</h1>
+<form action="test.php" method="post">
+<input name="action" type="hidden" value="new_project"/>
+name<br/>
+<input name="name" type="text" /><br/>
+<textarea name="description" />description</textarea><br/>
 <input type="submit" />
 </form>
 
