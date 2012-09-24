@@ -1,14 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     owner = models.ForeignKey(User)
+    
     def __unicode__(self):
         return self.name
-
     
 class Task(models.Model):
     name = models.CharField(max_length=100)
@@ -30,6 +29,8 @@ class Message(models.Model):
     author = models.ForeignKey(User)
     project = models.ForeignKey(Project)
     task = models.ForeignKey(Task, blank=True)
+    trust = models.ManyToManyField(User, blank=True)
+    
     def __unicode__(self):
         return "{0} - {1}: {2}...".format(self.timestamp, self.author, self.text[:50])
     

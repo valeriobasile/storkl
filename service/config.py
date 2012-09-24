@@ -15,7 +15,10 @@ config = {
 """Your activation is one click away.
 The activation code is {0}""",
    
-#  
-"db_sqlite"             : "storkl.db",
+# MySQL connetcion data (CHANGE THEM to suit your needs)
+"mysql_username"        : "storklservice",
+"mysql_password"        : "storklservice",
+"mysql_host"            : "localhost",
+"mysql_database"        : "storklservice",
 }
 

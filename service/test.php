@@ -16,8 +16,91 @@ function api_call($url, $args){
     return $result;
 }
 
+$action = isset($_POST["action"]) ? $_POST["action"] : null;
+switch ($action){
+    case "registration":
+        $url = $BASEURL."register";
+        $args = array(
+            "username"=>$_POST["username"],
+            "password"=>$_POST["password"],
+            "email"=>$_POST["email"],
+        );
+        $response = json_decode(api_call($url, $args));
+        break;
+    case "activation":
+        $url = $BASEURL."activate";
+        $args = array(
+            "activation"=>$_POST["activation"],
+        );
+        $response = json_decode(api_call($url, $args));
+        break;
+    case "authentication":
+        $url = $BASEURL."auth";
+        $args = array(
+            "username"=>$_POST["username"],
+            "password"=>$_POST["password"],
+        );
+        $response = json_decode(api_call($url, $args));
+        break;
+    default:
+        $response = null;
+        break;        
+}
 # test template
-$url = $BASEURL."";
-$args = array();
-echo(api_call($url, $args));
+# $url = $BASEURL."";
+# $args = array();
+# echo(api_call($url, $args));
+
 ?>
+<html>
+<head>
+</head>
+<body>
+
+<?
+if ($response->success==1){
+    echo("<div style='background-color:#efe;'><pre>");
+    print_r($response->response); 
+    echo("</pre></div>");
+}
+else {
+    echo("<div style='background-color:#fee; whitespace:pre;'><pre>");
+    print_r($response->errors); 
+    echo("</pre></div>");
+}
+?>
+<!--registration form -->
+<h1>registration</h1>
+<form action="test.php" method="post">
+<input name="action" type="hidden" value="registration"/>
+username<br/>
+<input name="username" type="text" /><br/>
+password<br/>
+<input name="password" type="password" /><br/>
+email<br/>
+<input name="email" type="text" /><br/>
+<input type="submit" />
+</form>
+
+<!--activation form -->
+<h1>activation</h1>
+<form action="test.php" method="post">
+<input name="action" type="hidden" value="activation"/>
+activation<br/>
+<input name="activation" type="activation" /><br/>
+<input type="submit" />
+</form>
+
+<!--authentication form -->
+<h1>authentication</h1>
+<form action="test.php" method="post">
+<input name="action" type="hidden" value="authentication"/>
+username<br/>
+<input name="username" type="text" /><br/>
+password<br/>
+<input name="password" type="password" /><br/>
+<input type="submit" />
+</form>
+
+</body>
+</html>
