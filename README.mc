@@ -1,9 +1,11 @@
 Storkl
-
+======
 Simple Time ORganizing Kit ("L" is for fashion).
 
-Task color code:
+Storkl is a platform for project and task management, designed to be simple and inter-operable. 
 
+Task color code:
+----------------
 - no deadline: grey;
 - yes deadline but user not assigned to task: blue;
 - deadline farther than CLOSE: green;
@@ -11,11 +13,9 @@ Task color code:
 - deadline closer than URGENT: red;
 - past deadline: purple;
 
-ie. CLOSE = 3 days, UGRENT = 1 day
+e.g. CLOSE = 3 days, URGENT = 1 day
+
+API
+---
 
 TODO
-- message board in tasks;
-- coloured tasks in dashboard and graphs;
-- graphs should not be written on disk. Instead they should be passed from view 
-to template for visualization;
-
