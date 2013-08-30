@@ -1,7 +1,10 @@
-from app import db, models
+from app import db, models, engine
 from datetime import datetime
+from sqlalchemy.ext.declarative import declarative_base
 
+# create the database
 db.create_all()
+
 
 # empty the db
 for user in models.User.query.all():
@@ -21,16 +24,18 @@ db.session.add(u2)
 
 p1 = models.Project(id=1, 
                     title='Hyperlamp', 
-                    owner='mary', 
+                    owner_id='mary', 
                     description='A lamp shaped like an hypercube.', 
                     created=datetime.utcnow())
 db.session.add(p1)
 
-t1 = models.Task(id=1, 
-                 project=1, 
+t1 = models.Task(id=1,
+                 project_id=1, 
                  name='Buy wooden sticks', 
-                 description='go to Gamma and buy a few meters of thin cut wood.')
+                 description='go to Gamma and buy a few meters of thin cut wood.',
+                 users=[u1])
 db.session.add(t1)
+
 
 db.session.commit()
 

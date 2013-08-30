@@ -15,7 +15,7 @@ class User(restful.Resource):
 api.add_resource(User, '/u/<string:username>')
 
 
-### User - Project ###
+### User - owns - Project ###
 class Ownership(restful.Resource):
     def get(self, username):
         projects = models.Project.query.filter_by(owner=username).all()
@@ -35,6 +35,16 @@ class Project(restful.Resource):
         
 api.add_resource(Project, '/p/<int:project_id>')
 
+
+### User - is in task comprised by - Project ###
+class Involvement(restful.Resource):
+    def get(self, username):
+        projects = models.Project.query.filter_by(owner=username).all()
+        return jsonify({ 'projects' : [p.serialize() for p in projects] })
+
+api.add_resource(Involvement, '/u/<string:username>/involved')
+
+
 ### Task ###
 class Task(restful.Resource):
     def get(self, task_id):
@@ -46,7 +56,17 @@ class Task(restful.Resource):
         
 api.add_resource(Task, '/t/<int:task_id>')
 
-    
+
+### User - Task ###
+class Assignment(restful.Resource):
+    def get(self, username):
+        user = models.User.query.get(username)
+        return jsonify({ 'tasks' : [t.serialize() for t in user.assignment] })
+
+api.add_resource(Assignment, '/u/<string:username>/assigned')
+
+
+
 # error handling
 @app.errorhandler(404)
 def not_found(error):
