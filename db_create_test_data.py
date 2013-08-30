@@ -1,6 +1,6 @@
-from app import db, models, engine
+from app import db, models
 from datetime import datetime
-from sqlalchemy.ext.declarative import declarative_base
+
 
 # create the database
 db.create_all()
@@ -12,6 +12,10 @@ for user in models.User.query.all():
     
 for project in models.Project.query.all():
     db.session.delete(project)
+
+for task in models.Task.query.all():
+    db.session.delete(task)
+
 db.session.commit()
 
 u1 = models.User(username='john', 
@@ -34,9 +38,14 @@ t1 = models.Task(id=1,
                  name='Buy wooden sticks', 
                  description='go to Gamma and buy a few meters of thin cut wood.',
                  users=[u1])
+
+t2 = models.Task(id=2,
+                 project_id=1, 
+                 name='Buy paper', 
+                 description='go to the store and buy a few square meters of multi-color paper.',
+                 users=[u1, u2])
 db.session.add(t1)
 
 
 db.session.commit()
-
 

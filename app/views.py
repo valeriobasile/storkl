@@ -18,10 +18,20 @@ api.add_resource(User, '/u/<string:username>')
 ### User - owns - Project ###
 class Ownership(restful.Resource):
     def get(self, username):
-        projects = models.Project.query.filter_by(owner=username).all()
+        projects = models.Project.query.filter_by(owner_id=username).all()
         return jsonify({ 'projects' : [p.serialize() for p in projects] })
 
 api.add_resource(Ownership, '/u/<string:username>/owns')
+
+
+### User - is in task comprised by - Project ###
+class UserInvolvement(restful.Resource):
+    def get(self, username):
+        user = models.User.query.get(username)
+        projects = list(set([task.project for task in user.tasks]))
+        return jsonify({ 'projects' : [p.serialize() for p in projects] })
+
+api.add_resource(UserInvolvement, '/u/<string:username>/involved')
 
 
 ### Project ###
@@ -36,13 +46,15 @@ class Project(restful.Resource):
 api.add_resource(Project, '/p/<int:project_id>')
 
 
-### User - is in task comprised by - Project ###
-class Involvement(restful.Resource):
-    def get(self, username):
-        projects = models.Project.query.filter_by(owner=username).all()
-        return jsonify({ 'projects' : [p.serialize() for p in projects] })
 
-api.add_resource(Involvement, '/u/<string:username>/involved')
+### Project - is in task comprised by - Project ###
+class ProjectInvolvement(restful.Resource):
+    def get(self, project_id):
+        project = models.Project.query.get(project_id)
+        users = list(set([val for subl in [task.users for task in project.tasks] for val in subl]))
+        return jsonify({ 'users' : [u.serialize() for u in users] })
+
+api.add_resource(ProjectInvolvement, '/p/<int:project_id>/involved')
 
 
 ### Task ###
@@ -61,7 +73,7 @@ api.add_resource(Task, '/t/<int:task_id>')
 class Assignment(restful.Resource):
     def get(self, username):
         user = models.User.query.get(username)
-        return jsonify({ 'tasks' : [t.serialize() for t in user.assignment] })
+        return jsonify({ 'tasks' : [t.serialize() for t in user.tasks] })
 
 api.add_resource(Assignment, '/u/<string:username>/assigned')
 
