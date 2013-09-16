@@ -1,8 +1,13 @@
 from app import db
-
+    
 assignment = db.Table('assignment',
     db.Column('user', db.String(64), db.ForeignKey('user.username')),
     db.Column('task', db.Integer, db.ForeignKey('task.id'))
+)
+
+dependency = db.Table('dependency',
+    db.Column('master', db.Integer, db.ForeignKey('task.id')),
+    db.Column('slave', db.Integer, db.ForeignKey('task.id'))
 )
 
 class User(db.Model):
@@ -41,6 +46,8 @@ class Task(db.Model):
     name = db.Column(db.String(64))
     description = db.Column(db.Text())
     users = db.relationship('User', secondary=assignment, backref=db.backref('task', lazy='dynamic'))
+    dependencies = db.relationship('Task', secondary=dependency, primaryjoin=dependency.c.slave==id, secondaryjoin=dependency.c.master==id, backref='dependent')
+    dependents = db.relationship('Task', secondary=dependency, primaryjoin=dependency.c.master==id, secondaryjoin=dependency.c.slave==id, backref='dependency')
 
     def serialize(self):
         project = Project.query.get(self.project_id)
@@ -48,6 +55,5 @@ class Task(db.Model):
                       'project' : project.serialize(), 
                       'description' : self.description}
         return serialized
-
 
 

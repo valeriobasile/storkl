@@ -69,6 +69,22 @@ class Task(restful.Resource):
 api.add_resource(Task, '/t/<int:task_id>')
 
 
+class Dependency(restful.Resource):
+    def get(self, task_id):
+        task = models.Task.query.get(task_id)
+        if not task:
+            abort(404, message="Task {} doesn't exist".format(task_id))
+
+        return jsonify({'dependency': 
+                         {'dependencies' : 
+                            [t.serialize() for t in task.dependencies], 
+                          'dependents' : 
+                            [t.serialize() for t in task.dependents] }
+                       })
+        
+api.add_resource(Dependency, '/t/<int:task_id>/dep')
+
+
 ### User - Task ###
 class Assignment(restful.Resource):
     def get(self, username):
