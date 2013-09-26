@@ -43,8 +43,14 @@ t2 = models.Task(id=2,
                  project_id=1, 
                  name='Buy paper', 
                  description='go to the store and buy a few square meters of multi-color paper.',
+<<<<<<< HEAD
                  users=[u1, u2])
 db.session.add(t2)
+=======
+                 users=[u1, u2],
+                 dependencies=[t1])
+db.session.add(t1)
+>>>>>>> 6a80fd0f3a41b8dcbfba3b8c990f26f082540d20
 
 t3 = models.Task(id=2,
                  project_id=1, 

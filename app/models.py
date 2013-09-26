@@ -1,11 +1,16 @@
 from app import db
+<<<<<<< HEAD
 from app.utils import *
 
+=======
+    
+>>>>>>> 6a80fd0f3a41b8dcbfba3b8c990f26f082540d20
 assignment = db.Table('assignment',
     db.Column('user', db.String(64), db.ForeignKey('user.username')),
     db.Column('task', db.Integer, db.ForeignKey('task.id'))
 )
 
+<<<<<<< HEAD
 trust = db.Table('trust',
     db.Column('trustee', db.String(64), db.ForeignKey('user.username'), primary_key=True),
     db.Column('trusted', db.String(64), db.ForeignKey('user.username'), primary_key=True)
@@ -14,6 +19,11 @@ trust = db.Table('trust',
 dependency = db.Table('dependency',
     db.Column('depender', db.Integer, db.ForeignKey('task.id'), primary_key=True),
     db.Column('dependent', db.Integer, db.ForeignKey('task.id'), primary_key=True)
+=======
+dependency = db.Table('dependency',
+    db.Column('master', db.Integer, db.ForeignKey('task.id')),
+    db.Column('slave', db.Integer, db.ForeignKey('task.id'))
+>>>>>>> 6a80fd0f3a41b8dcbfba3b8c990f26f082540d20
 )
 
 class User(db.Model):
@@ -73,6 +83,7 @@ class Task(db.Model):
     name = db.Column(db.String(64))
     description = db.Column(db.Text())
     users = db.relationship('User', secondary=assignment, backref=db.backref('task', lazy='dynamic'))
+<<<<<<< HEAD
     tasks = db.relationship('Task', secondary=dependency, backref=db.backref('depender', lazy='dynamic'))
     dependents = db.relationship('Task', 
                               secondary=dependency, 
@@ -81,12 +92,16 @@ class Task(db.Model):
                               primaryjoin=id==dependency.c.dependent,
                               secondaryjoin=id==dependency.c.depender)
      
+=======
+    dependencies = db.relationship('Task', secondary=dependency, primaryjoin=dependency.c.slave==id, secondaryjoin=dependency.c.master==id, backref='dependent')
+    dependents = db.relationship('Task', secondary=dependency, primaryjoin=dependency.c.master==id, secondaryjoin=dependency.c.slave==id, backref='dependency')
+
+>>>>>>> 6a80fd0f3a41b8dcbfba3b8c990f26f082540d20
     def serialize(self):
         project = Project.query.get(self.project_id)
         serialized = {'name' : self.name, 
                       'project' : project.serialize(), 
                       'description' : self.description}
         return serialized
-
 
 
