@@ -1,10 +1,8 @@
 from app import db, models
 from datetime import datetime
 
-
 # create the database
 db.create_all()
-
 
 # empty the db
 for user in models.User.query.all():
@@ -23,7 +21,8 @@ u1 = models.User(username='john',
 db.session.add(u1)
 
 u2 = models.User(username='mary', 
-                 email='mary@email.com')
+                 email='mary@email.com',
+                 trusted=[u1])
 db.session.add(u2)
 
 p1 = models.Project(id=1, 
@@ -38,14 +37,22 @@ t1 = models.Task(id=1,
                  name='Buy wooden sticks', 
                  description='go to Gamma and buy a few meters of thin cut wood.',
                  users=[u1])
+db.session.add(t1)
 
 t2 = models.Task(id=2,
                  project_id=1, 
                  name='Buy paper', 
                  description='go to the store and buy a few square meters of multi-color paper.',
                  users=[u1, u2])
-db.session.add(t1)
+db.session.add(t2)
 
+t3 = models.Task(id=2,
+                 project_id=1, 
+                 name='Build structure', 
+                 description='put together wood and paper.',
+                 users=[u1],
+                 dependencies=[t1, t2])
+db.session.add(t3)
 
 db.session.commit()
 
