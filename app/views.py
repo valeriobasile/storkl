@@ -1,8 +1,9 @@
-from app import app, models, api
+from app import db, app, models, api
 from utils import *
 from flask import make_response, jsonify
 from flask.ext import restful
-from flask.ext.restful import abort
+from flask.ext.restful import abort, reqparse
+from sqlalchemy.exc import IntegrityError
 
 ### User ###
 class User(restful.Resource):
@@ -12,8 +13,26 @@ class User(restful.Resource):
             return jsonify(user.serialize())
         else:
             abort(404, message="User {} doesn't exist".format(username))
-
+            
 api.add_resource(User, '/u/<string:username>')
+
+
+class NewUser(restful.Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username')
+        parser.add_argument('email')
+        args = parser.parse_args()
+        try:
+            new_user = models.User(username=args['username'], 
+                 email=args['email'])
+            db.session.add(new_user)
+            db.session.commit()
+            return 201
+        except IntegrityError:
+            abort(400, message="User {} already exists".format(args['username']))
+            
+api.add_resource(NewUser, '/u/new')
 
 
 ### User - owns - Project ###
