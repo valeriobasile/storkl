@@ -4,9 +4,15 @@ from flask import make_response, jsonify
 from flask.ext import restful
 from flask.ext.restful import abort, reqparse
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 ### User ###
 class User(restful.Resource):
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('username')
+        self.parser.add_argument('email')
+
     def get(self, username):
         user = models.User.query.get(username)
         if user:
@@ -14,15 +20,8 @@ class User(restful.Resource):
         else:
             abort(404, message="User {} doesn't exist".format(username))
             
-api.add_resource(User, '/u/<string:username>')
-
-
-class NewUser(restful.Resource):
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('username')
-        parser.add_argument('email')
-        args = parser.parse_args()
+    def post(self, username):
+        args = self.parser.parse_args()
         try:
             new_user = models.User(username=args['username'], 
                  email=args['email'])
@@ -32,7 +31,17 @@ class NewUser(restful.Resource):
         except IntegrityError:
             abort(400, message="User {} already exists".format(args['username']))
             
-api.add_resource(NewUser, '/u/new')
+    def delete(self, username):
+        args = self.parser.parse_args()
+        try:
+            user = models.User.query.get(username)
+            db.session.delete(user)
+            db.session.commit()
+            return 201
+        except UnmappedInstanceError:
+            abort(400, message="User {} does not exist".format('username'))
+            
+api.add_resource(User, '/u/<string:username>')
 
 
 ### User - owns - Project ###

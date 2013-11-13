@@ -14,6 +14,11 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'storkl.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
 
+# let's try dataset
+import dataset
+DATASET_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'storkl.ds')
+ds = dataset.connect(DATASET_DATABASE_URI)
+
 
 from app import views, models
 
