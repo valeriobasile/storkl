@@ -50,6 +50,19 @@ lists projects in which user ${username} is involved
 
 lists tasks assigned to user ${username}
 
+### POST
+
+> _STORKL_/u/new
+
+creates a new user
+
+| argument | type           | example |
+| -------- | -------------- | -----  |
+| username | string         | _valerio_ |
+| email    | string         | _valerio@storkl.net_ |
+| password | SHA-1 checksum | _229fe88b25ae8307601bf6c9c050bf02755b7e26_ |
+
+
 Task
 ----
 
@@ -61,8 +74,29 @@ retrieves information about task ${task_id}
 
 lists users assigned to task ${task_id}
 
+### POST
+
+> _STORKL_/t/new
+
+creates a new task
+
+| argument    | type    | example     |
+| ----------- | ------- | ----------- |
+| name        | string  | _buy paint_ |
+| project\_id | integer | _1_         |
+
+> _STORKL_/t/${task_id}/u/${username}/add
+
+assign task ${task_id} to user ${username}
+
+> _STORKL_/t/${task_id}/u/${username}/del
+
+remove assignment of task ${task_id} from user ${username}
+
 Project
 -------
+
+### GET
 
 > _STORKL_/p/${project_id}
 
@@ -71,4 +105,10 @@ retrieves information about project ${project_id}
 > _STORKL_/p/${project_id}/involved
 
 lists users involved in pproject ${project_id}
+
+### POST
+
+> _STORKL_/t/new
+
+creates a new project
 
